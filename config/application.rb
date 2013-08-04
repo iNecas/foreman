@@ -33,8 +33,12 @@ require File.expand_path('../../lib/core_extensions', __FILE__)
 
 Bundler.require(:jsonp) if SETTINGS[:support_jsonp]
 
+require 'dynflow'
+require 'dynflow/persistence_adapters/active_record'
+
 module Foreman
   class Application < Rails::Application
+    Dynflow::PersistenceAdapters::ActiveRecord.bootstrap_migrations(self)
     # Setup additional routes by loading all routes file from routes directory
     config.paths["config/routes"] += Dir[Rails.root.join("config/routes/**/*.rb")]
 
@@ -112,3 +116,5 @@ module Foreman
     puts "For some operations a user must be set, try User.current = User.first"
   end
 end
+
+#Dir[File.join(Rails.root,'lib/actions/{helpers,elastic_search,katello,headpin}/**/*.rb')].each { |f| require f }

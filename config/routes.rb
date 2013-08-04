@@ -1,10 +1,23 @@
 require 'api_constraints'
+require 'dynflow/web_console'
 
 Foreman::Application.routes.draw do
   #ENC requests goes here
   match "node/:name" => 'hosts#externalNodes', :constraints => { :name => /[^\.][\w\.-]+/ }
   post "reports/create"
   post "fact_values/create"
+
+  dynflow_console = Dynflow::WebConsole.setup do
+    before do
+      # NG_TODO: propper authentication
+      User.current = User.first
+    end
+
+    set :world, Foreman::Orch.world
+  end
+
+  mount dynflow_console => "/dynflow"
+
 
   resources :reports, :only => [:index, :show, :destroy, :create] do
     collection do

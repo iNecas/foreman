@@ -5,6 +5,7 @@ require 'foreman/controller'
 require 'net'
 require 'foreman/provision' if SETTINGS[:unattended]
 require 'audit_extensions'
+require 'foreman/orch'
 
 module Foreman
   # generate a UUID
