@@ -2,7 +2,7 @@ module Orchestration::DNS
   def self.included(base)
     base.send :include, InstanceMethods
     base.class_eval do
-      after_validation :dns_conflict_detected?, :queue_dns
+      #after_validation :dns_conflict_detected?, :queue_dns
       before_destroy :queue_dns_destroy
     end
   end
@@ -26,8 +26,6 @@ module Orchestration::DNS
       return unless reverse_dns? or @dns_ptr_record
       @dns_ptr_record ||= Net::DNS::PTRRecord.new reverse_dns_record_attrs
     end
-
-    protected
 
     def set_dns_a_record
       dns_a_record.create
@@ -60,8 +58,6 @@ module Orchestration::DNS
     def del_conflicting_dns_ptr_record
       dns_ptr_record.conflicts.each { |c| c.destroy }
     end
-
-    private
 
     def dns_record_attrs
       { :hostname => name, :ip => ip, :resolver => domain.resolver, :proxy => domain.proxy }
@@ -127,7 +123,7 @@ module Orchestration::DNS
     end
 
     def ip_available?
-      ip.present? || (capabilities.include?(:image) && compute_resource.provided_attributes.keys.include?(:ip))
+      ip.present? || (capabilities.include?(:image) && compute_resource.sprovided_attributes.keys.include?(:ip))
     end
 
   end

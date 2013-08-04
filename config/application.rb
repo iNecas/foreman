@@ -35,6 +35,7 @@ Bundler.require(:jsonp) if SETTINGS[:support_jsonp]
 
 require 'dynflow'
 require 'dynflow/persistence_adapters/active_record'
+require 'dynflow/persistence_adapters/simple_file_storage'
 
 module Foreman
   class Application < Rails::Application
@@ -117,4 +118,4 @@ module Foreman
   end
 end
 
-#Dir[File.join(Rails.root,'lib/actions/{helpers,elastic_search,katello,headpin}/**/*.rb')].each { |f| require f }
+Dir[File.join(Rails.root,'lib/actions/**/*.rb')].each { |f| require f }

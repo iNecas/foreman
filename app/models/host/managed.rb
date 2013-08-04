@@ -513,7 +513,7 @@ class Host::Managed < Host::Base
   end
 
   def set_ip_address
-    self.ip ||= subnet.unused_ip if subnet and SETTINGS[:unattended] and (new_record? or managed?)
+    #self.ip ||= subnet.unused_ip if subnet and SETTINGS[:unattended] and (new_record? or managed?)
   end
 
   # returns a rundeck output
@@ -553,6 +553,7 @@ class Host::Managed < Host::Base
   end
 
   def require_ip_validation?
+    return false if self.ip.blank?
     managed? and !compute? or (compute? and !compute_resource.provided_attributes.keys.include?(:ip))
   end
 

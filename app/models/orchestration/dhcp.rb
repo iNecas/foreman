@@ -2,7 +2,7 @@ module Orchestration::DHCP
   def self.included(base)
     base.send :include, InstanceMethods
     base.class_eval do
-      after_validation :queue_dhcp
+      #after_validation :queue_dhcp
       before_destroy :queue_dhcp_destroy
       validate :ip_belongs_to_subnet?
     end
@@ -11,15 +11,13 @@ module Orchestration::DHCP
   module InstanceMethods
 
     def dhcp?
-      name.present? and ip.present? and !subnet.nil? and subnet.dhcp? and managed? and capabilities.include?(:build)
+      name.present? and !subnet.nil? and subnet.dhcp? and managed? and capabilities.include?(:build)
     end
 
     def dhcp_record
       return unless dhcp? or @dhcp_record
       @dhcp_record ||= jumpstart? ? Net::DHCP::SparcRecord.new(dhcp_attrs) : Net::DHCP::Record.new(dhcp_attrs)
     end
-
-    protected
 
     def set_dhcp
       dhcp_record.create
@@ -53,8 +51,6 @@ module Orchestration::DHCP
     rescue => e
       failure _("failed to detect boot server: %s") % e
     end
-
-    private
 
     # returns a hash of dhcp record settings
     def dhcp_attrs

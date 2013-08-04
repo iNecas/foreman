@@ -84,7 +84,10 @@ class HostsController < ApplicationController
     @host = Host.new(params[:host])
     @host.managed = true if (params[:host] && params[:host][:managed].nil?)
     forward_url_options
-    if @host.save
+
+    Foreman::Orch.async_action(::Actions::HostCreate, @host)
+
+    if @host.errors.empty?
       process_success :success_redirect => host_path(@host), :redirect_xhr => request.xhr?
     else
       load_vars_for_ajax
