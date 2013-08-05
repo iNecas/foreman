@@ -33,3 +33,5 @@ end
 
 gem 'dynflow', :path => '/home/inecas/Projects/dynflow'
 gem 'sinatra' # we use the dynflow web console
+
+gem 'foreman-ext', :path => '/home/inecas/Projects/RedHat/foreman/foreman-ext'
