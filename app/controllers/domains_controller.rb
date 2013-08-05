@@ -26,7 +26,8 @@ class DomainsController < ApplicationController
 
   def create
     @domain = Domain.new(params[:domain])
-    if @domain.save
+    Foreman::Orch.async_action(::Actions::DomainCreate, @domain)
+    if @domain.errors.empty?
       process_success
     else
       process_error
