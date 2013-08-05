@@ -34,12 +34,10 @@ require File.expand_path('../../lib/core_extensions', __FILE__)
 Bundler.require(:jsonp) if SETTINGS[:support_jsonp]
 
 require 'dynflow'
-require 'dynflow/persistence_adapters/active_record'
 require 'dynflow/persistence_adapters/simple_file_storage'
 
 module Foreman
   class Application < Rails::Application
-    Dynflow::PersistenceAdapters::ActiveRecord.bootstrap_migrations(self)
     # Setup additional routes by loading all routes file from routes directory
     config.paths["config/routes"] += Dir[Rails.root.join("config/routes/**/*.rb")]
 

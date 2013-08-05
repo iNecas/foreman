@@ -31,7 +31,7 @@ Dir["#{File.dirname(__FILE__)}/bundler.d/*.rb"].each do |bundle|
   self.instance_eval(Bundler.read_file(bundle))
 end
 
-gem 'dynflow', :path => '/home/inecas/Projects/dynflow'
+gem 'dynflow', :git => 'https://github.com/iNecas/dynflow.git', :branch => "kafo"
 gem 'sinatra' # we use the dynflow web console
 
-gem 'foreman-ext', :path => '/home/inecas/Projects/RedHat/foreman/foreman-ext'
+gem 'foreman-ext', :git => 'https://github.com/iNecas/foreman-ext.git'

@@ -5,7 +5,6 @@ module Foreman
     class << self
 
       def world
-        #persistence_adapter = Dynflow::PersistenceAdapters::ActiveRecord.new
         persistence_adapter = Dynflow::PersistenceAdapters::SimpleFileStorage.new(File.join(Rails.root, 'tmp/dynflow'))
         @world ||= Dynflow::SimpleWorld.new(persistence_adapter: persistence_adapter)
       end
