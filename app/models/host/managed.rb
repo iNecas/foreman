@@ -351,29 +351,35 @@ class Host::Managed < Host::Base
     @cached_host_params = hp
   end
 
-  # JSON is auto-parsed by the API, so these should be in the right format
-  def self.importHostAndFacts hostname, facts, certname = nil, proxy_id = nil
-    raise(::Foreman::Exception.new("Invalid Facts, must be a Hash")) unless facts.is_a?(Hash)
+  def self.importHost(hostname, certname, proxy_id = nil)
     raise(::Foreman::Exception.new("Invalid Hostname, must be a String")) unless hostname.is_a?(String)
 
     # downcase everything
     hostname.try(:downcase!)
     certname.try(:downcase!)
 
-    h = certname.present? ? Host.find_by_certname(certname) : nil
-    h ||= Host.find_by_name hostname
-    h ||= Host.new(:name => hostname, :certname => certname) if Setting[:create_new_host_when_facts_are_uploaded]
+    host = certname.present? ? Host.find_by_certname(certname) : nil
+    host ||= Host.find_by_name hostname
+    host ||= Host.new(:name => hostname, :certname => certname) if Setting[:create_new_host_when_facts_are_uploaded]
+    if host
+      # if we were given a certname but found the Host by hostname we should update the certname
+      host.certname = certname if certname.present?
+      # if proxy authentication is enabled and we have no puppet proxy set, use it.
+      host.puppet_proxy_id ||= proxy_id
+      host.save(:validate => false)
+      return host
+    else
+      return
+    end
+  end
 
-    return Host.new, true if h.nil?
-    # if we were given a certname but found the Host by hostname we should update the certname
-    h.certname = certname if certname.present?
-
-    # if proxy authentication is enabled and we have no puppet proxy set, use it.
-    h.puppet_proxy_id ||= proxy_id
-
-    h.save(:validate => false) if h.new_record?
-    state = h.importFacts(facts)
-    return h, state
+   # JSON is auto-parsed by the API, so these should be in the right format
+  def self.importHostAndFacts(hostname, facts, certname = nil, proxy_id = nil)
+    raise(::Foreman::Exception.new("Invalid Facts, must be a Hash")) unless facts.is_a?(Hash)
+    host = importHost(hostname, certname, proxy_id)
+    return Host.new, true if host.nil?
+    state = host.importFacts(facts)
+    return host, state
   end
 
   def attributes_to_import_from_facts

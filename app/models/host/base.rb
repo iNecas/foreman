@@ -58,6 +58,10 @@ module Host
       super - [ inheritance_column ]
     end
 
+    def self.importHost(*args)
+      return
+    end
+
     def self.importHostAndFacts json
       # noop, overridden by STI descendants
       return self, true
