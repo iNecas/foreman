@@ -173,8 +173,14 @@ Return value may either be one of the following:
       param :type, String,     :desc => "optional: the STI type of host to create"
 
       def facts
-        @host, state = detect_host_type.importHostAndFacts params[:name], params[:facts], params[:certname], detected_proxy.try(:id)
-        process_response state
+        task = ForemanTasks.async_task(::Actions::Foreman::Host::ImportFacts,
+                                       detect_host_type,
+                                       params[:name],
+                                       params[:facts],
+                                       params[:certname],
+                                       detected_proxy.try(:id))
+
+        render :json => {:task_id => task.id}, :status => 202
       rescue ::Foreman::Exception => e
         render :json => {'message'=>e.to_s}, :status => :unprocessable_entity
       end

@@ -3,6 +3,16 @@ require 'facts_parser'
 module Host
   class Base < ActiveRecord::Base
     include Foreman::STI
+    include ::Katello::Ext::ActionSubject
+
+    def action_input_key
+      "host"
+    end
+
+    def available_locks
+      [:read, :write, :import_facts]
+    end
+
     self.table_name = :hosts
     OWNER_TYPES = %w(User Usergroup)
 
