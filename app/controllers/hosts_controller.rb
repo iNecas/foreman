@@ -230,13 +230,23 @@ class HostsController < ApplicationController
   end
 
   def cancelBuild
-    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network::Finish, @host)
-    redirect_to foreman_tasks_task_path(task)
-    #if @host.built(false)
-    #  process_success :success_msg =>  _("Canceled pending build for %s") % (@host.name), :success_redirect => :back
-    #else
-    #  process_error :redirect => :back, :error_msg => _("Failed to cancel pending build for %s") % (@host.name)
-    #end
+    if task = ForemanTasks::Task.for_resource(@host).running.first
+      wait_for_build_step = task.running_steps.find do |step|
+        step.action_class == ::Actions::Foreman::Provision::WaitForBuild
+      end
+      if wait_for_build_step
+        ForemanTasks.dynflow.world.event(wait_for_build_step.execution_plan_id,
+                                         wait_for_build_step.id, Dynflow::Action::Cancellable::Cancel)
+      else
+        process_error :redirect => :back, :error_msg => _("Failed to cancel provisioning: the provision task not running")
+        return
+      end
+      process_success :success_msg => _("Provisioning cancelled"), :success_redirect => :back
+      return
+    else
+      process_error :redirect => :back, :error_msg => _("Failed to cancel provisioning: the provision task not running")
+      return
+    end
   end
 
   def power

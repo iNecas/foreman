@@ -280,9 +280,9 @@ module HostsHelper
         button_group(
             link_to_if_authorized(_("Edit"), hash_for_edit_host_path(:id => host).merge(:auth_object => host),
                                   :title    => _("Edit your host"), :id => "edit-button"),
-            link_to_if_authorized(_("Provision host"),
+            link_to_if_authorized(_("Provision"),
                                   hash_for_provision_host_path(:id => host).merge(:auth_object => host, :permission => 'edit_hosts'), :method => :put),
-            link_to_if_authorized(_("Unprovision host"),
+            link_to_if_authorized(_("Unprovision"),
                                   hash_for_provision_host_path(:id => host).merge(:auth_object => host, :permission => 'edit_hosts'), :method => :delete),
             if host.build
               link_to_if_authorized(_("Cancel build"), hash_for_cancelBuild_host_path(:id => host).merge(:auth_object => host, :permission => 'build_hosts'),

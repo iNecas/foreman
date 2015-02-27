@@ -4,8 +4,8 @@ module Actions
       module Network
         class Create < ProvisionAction
           def plan(host)
-            # action_subject(host)
-            host.setBuild
+            action_subject(host)
+            host.update_attributes!(:build => true)
             sequence do
               plan_action(Compute::Create, host)
               host.managed_interfaces.each do |nic|
@@ -16,17 +16,25 @@ module Actions
                 plan_action(Dns::CreatePtrRecord, nic)
               end
               plan_action(Compute::PowerUp, host)
+              plan_action(WaitForBuild, host)
+              plan_action(Finish, host)
             end
           end
 
         end
 
-        class Finish < ProvisionAction
+        class Finish < HostAction
           def plan(host)
-            host.built(true)
-            host.interfaces.each do |nic|
-              plan_action(Tftp::Create, nic) if nic.tftp?
+            sequence do
+              super
+              host.interfaces.each do |nic|
+                plan_action(Tftp::Create, nic) if nic.tftp?
+              end
             end
+          end
+
+          def run
+            host.update_attributes!(:build => false)
           end
         end
 
@@ -47,6 +55,7 @@ module Actions
 
           def finalize
             host = ::Host.find(input[:host_id])
+            host.update_attributes!(:build => false)
             host.managed_interfaces.each do |nic|
               nic.update_attributes(mac: nil, ip: nil)
             end
