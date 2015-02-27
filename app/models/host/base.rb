@@ -1,5 +1,8 @@
 module Host
   class Base < ActiveRecord::Base
+
+    include ForemanTasks::Concerns::HostActionSubject
+
     include Foreman::STI
     include Authorizable
     include CounterCacheFix
@@ -31,6 +34,8 @@ module Host
                                            :allow_blank => true,
                                            :message     => (_("Owner type needs to be one of the following: %s") % OWNER_TYPES.join(', ')) }
     validate :host_has_required_interfaces
+
+    serialize :compute_attributes, Hash
 
     # primary interface is mandatory because of delegated methods so we build it if it's missing
     # similar for provision interface

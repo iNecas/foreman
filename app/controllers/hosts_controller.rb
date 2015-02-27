@@ -18,7 +18,7 @@ class HostsController < ApplicationController
   add_smart_proxy_filters PUPPETMASTER_ACTIONS, :features => ['Puppet']
 
   before_filter :ajax_request, :only => AJAX_REQUESTS
-  before_filter :find_resource, :only => [:show, :clone, :edit, :update, :destroy, :puppetrun, :review_before_build,
+  before_filter :find_resource, :only => [:show, :clone, :provision, :edit, :update, :destroy, :puppetrun, :review_before_build,
                                          :setBuild, :cancelBuild, :power, :overview, :bmc, :vm,
                                          :runtime, :resources, :templates, :nics, :ipmi_boot, :console,
                                          :toggle_manage, :pxe_config, :storeconfig_klasses, :disassociate]
@@ -74,6 +74,11 @@ class HostsController < ApplicationController
     load_vars_for_ajax
     flash[:warning] = _("The marked fields will need reviewing")
     @host.valid?
+  end
+
+  def provision
+    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network, @host)
+    redirect_to foreman_tasks_task_path(task)
   end
 
   def create
@@ -220,11 +225,13 @@ class HostsController < ApplicationController
   end
 
   def cancelBuild
-    if @host.built(false)
-      process_success :success_msg =>  _("Canceled pending build for %s") % (@host.name), :success_redirect => :back
-    else
-      process_error :redirect => :back, :error_msg => _("Failed to cancel pending build for %s") % (@host.name)
-    end
+    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Finish, @host)
+    redirect_to foreman_tasks_task_path(task)
+    #if @host.built(false)
+    #  process_success :success_msg =>  _("Canceled pending build for %s") % (@host.name), :success_redirect => :back
+    #else
+    #  process_error :redirect => :back, :error_msg => _("Failed to cancel pending build for %s") % (@host.name)
+    #end
   end
 
   def power
@@ -585,7 +592,7 @@ class HostsController < ApplicationController
           'multiple_enable', 'submit_multiple_enable',
           'update_multiple_organization', 'select_multiple_organization',
           'update_multiple_location', 'select_multiple_location',
-          'disassociate', 'update_multiple_disassociate', 'multiple_disassociate'
+          'disassociate', 'update_multiple_disassociate', 'multiple_disassociate', 'provision'
         :edit
       when 'multiple_destroy', 'submit_multiple_destroy'
         :destroy

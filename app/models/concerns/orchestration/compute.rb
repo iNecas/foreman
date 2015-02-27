@@ -5,7 +5,7 @@ module Orchestration::Compute
   extend ActiveSupport::Concern
 
   included do
-    attr_accessor :compute_attributes, :vm
+    attr_accessor :vm
     after_validation :validate_compute_provisioning, :queue_compute
     before_destroy :queue_compute_destroy
   end
@@ -36,8 +36,6 @@ module Orchestration::Compute
   def mac_available?
     mac.present? || compute_provides?(:mac)
   end
-
-  protected
 
   def queue_compute
     return unless compute? and errors.empty?

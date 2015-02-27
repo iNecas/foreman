@@ -2,7 +2,7 @@ module Orchestration::SSHProvision
   extend ActiveSupport::Concern
 
   included do
-    after_validation :validate_ssh_provisioning, :queue_ssh_provision
+    after_validation :queue_ssh_provision
     attr_accessor :template_file, :client
   end
 

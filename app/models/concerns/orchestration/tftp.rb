@@ -2,7 +2,7 @@ module Orchestration::TFTP
   extend ActiveSupport::Concern
 
   included do
-    after_validation :validate_tftp, :queue_tftp
+    after_validation :queue_tftp
     before_destroy :queue_tftp_destroy
 
     # required for pxe template url helpers
@@ -16,8 +16,6 @@ module Orchestration::TFTP
   def tftp
     subnet.tftp_proxy(:variant => host.operatingsystem.pxe_variant) if tftp?
   end
-
-  protected
 
   # Adds the host to the forward and reverse TFTP zones
   # +returns+ : Boolean true on success

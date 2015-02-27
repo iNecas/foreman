@@ -279,7 +279,9 @@ module HostsHelper
     title_actions(
         button_group(
             link_to_if_authorized(_("Edit"), hash_for_edit_host_path(:id => host).merge(:auth_object => host),
-                                    :title    => _("Edit your host"), :id => "edit-button"),
+                                  :title    => _("Edit your host"), :id => "edit-button"),
+            link_to_if_authorized(_("Provision host"),
+                                  hash_for_provision_host_path(:id => host).merge(:auth_object => host, :permission => 'edit_hosts'), :method => :put),
             if host.build
               link_to_if_authorized(_("Cancel build"), hash_for_cancelBuild_host_path(:id => host).merge(:auth_object => host, :permission => 'build_hosts'),
                                     :disabled => host.can_be_built?,
