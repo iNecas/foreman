@@ -282,6 +282,8 @@ module HostsHelper
                                   :title    => _("Edit your host"), :id => "edit-button"),
             link_to_if_authorized(_("Provision host"),
                                   hash_for_provision_host_path(:id => host).merge(:auth_object => host, :permission => 'edit_hosts'), :method => :put),
+            link_to_if_authorized(_("Unprovision host"),
+                                  hash_for_provision_host_path(:id => host).merge(:auth_object => host, :permission => 'edit_hosts'), :method => :delete),
             if host.build
               link_to_if_authorized(_("Cancel build"), hash_for_cancelBuild_host_path(:id => host).merge(:auth_object => host, :permission => 'build_hosts'),
                                     :disabled => host.can_be_built?,

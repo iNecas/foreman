@@ -35,9 +35,8 @@ class UnattendedController < ApplicationController
 
   # this actions is called by each operatingsystem post/finish script - it notify us that the OS installation is done.
   def built
-    logger.info "#{controller_name}: #{@host.name} is Built!"
-    update_ip if Setting[:update_ip_from_built_request]
-    head(@host.built ? :created : :conflict)
+    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network::Finish, @host)
+    redirect_to foreman_tasks_task_path(task)
   end
 
   def template

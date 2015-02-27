@@ -18,7 +18,7 @@ class HostsController < ApplicationController
   add_smart_proxy_filters PUPPETMASTER_ACTIONS, :features => ['Puppet']
 
   before_filter :ajax_request, :only => AJAX_REQUESTS
-  before_filter :find_resource, :only => [:show, :clone, :provision, :edit, :update, :destroy, :puppetrun, :review_before_build,
+  before_filter :find_resource, :only => [:show, :clone, :provision_create, :provision_destroy, :edit, :update, :destroy, :puppetrun, :review_before_build,
                                          :setBuild, :cancelBuild, :power, :overview, :bmc, :vm,
                                          :runtime, :resources, :templates, :nics, :ipmi_boot, :console,
                                          :toggle_manage, :pxe_config, :storeconfig_klasses, :disassociate]
@@ -76,8 +76,13 @@ class HostsController < ApplicationController
     @host.valid?
   end
 
-  def provision
-    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network, @host)
+  def provision_create
+    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network::Create, @host)
+    redirect_to foreman_tasks_task_path(task)
+  end
+
+  def provision_destroy
+    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network::Destroy, @host)
     redirect_to foreman_tasks_task_path(task)
   end
 
@@ -225,7 +230,7 @@ class HostsController < ApplicationController
   end
 
   def cancelBuild
-    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Finish, @host)
+    task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network::Finish, @host)
     redirect_to foreman_tasks_task_path(task)
     #if @host.built(false)
     #  process_success :success_msg =>  _("Canceled pending build for %s") % (@host.name), :success_redirect => :back
@@ -592,7 +597,8 @@ class HostsController < ApplicationController
           'multiple_enable', 'submit_multiple_enable',
           'update_multiple_organization', 'select_multiple_organization',
           'update_multiple_location', 'select_multiple_location',
-          'disassociate', 'update_multiple_disassociate', 'multiple_disassociate', 'provision'
+          'disassociate', 'update_multiple_disassociate', 'multiple_disassociate',
+          'provision_create', 'provision_destroy'
         :edit
       when 'multiple_destroy', 'submit_multiple_destroy'
         :destroy
