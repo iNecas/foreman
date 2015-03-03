@@ -7,7 +7,7 @@ module Actions
             action_subject(host)
             host.update_attributes!(:build => true)
             sequence do
-              plan_action(Compute::Create, host)
+              compute_create = plan_action(Compute::Create, host)
               host.managed_interfaces.each do |nic|
                 plan_action(Dhcp::Create, nic)
                 plan_action(Tftp::Create, nic)
@@ -15,7 +15,7 @@ module Actions
                 plan_action(Dns::CreateARecord, nic)
                 plan_action(Dns::CreatePtrRecord, nic)
               end
-              plan_action(Compute::PowerUp, host)
+              plan_action(Compute::PowerUp, host, uuid: compute_create.output[:uuid])
               plan_action(WaitForBuild, host)
               plan_action(Finish, host)
             end

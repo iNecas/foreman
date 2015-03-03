@@ -4,8 +4,8 @@ module Actions
 
       class HostAction < EntryAction
 
-        def plan(host)
-          plan_self(host_id: host.id)
+        def plan(host, args = {})
+          plan_self({ host_id: host.id }.merge(args))
         end
 
         def host

@@ -178,8 +178,6 @@ module Orchestration::Compute
     failure _("Failed to undo update compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e
   end
 
-  private
-
   def compute_update_required?
     return false unless compute_resource.supports_update? and !compute_attributes.nil?
     old.compute_attributes = compute_resource.find_vm_by_uuid(uuid).attributes
