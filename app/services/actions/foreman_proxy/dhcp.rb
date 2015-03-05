@@ -1,20 +1,23 @@
 module Actions
   module ForemanProxy
     module Dhcp
+      class Base < ForemanProxy::Base
+        def proxy_class
+          ProxyAPI::DHCP
+        end
+      end
+
       module Record
-        class Create < Base
+        class Create < Dhcp::Base
           input_format do
+            param :proxy_url, String
             param :jumpstart, TrueClass
             param :attrs, Hash
-            param :nic_attrs
+            param :nic_attrs, Hash
           end
 
           output_format do
             param :response
-          end
-
-          def proxy
-            ProxyAPI::DHCP.new(url: input[:proxy_url])
           end
 
           def run
@@ -37,6 +40,7 @@ module Actions
           end
         end
       end
+
     end
   end
 end

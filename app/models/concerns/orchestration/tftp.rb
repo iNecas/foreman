@@ -47,8 +47,6 @@ module Orchestration::TFTP
   def delTFTPBootFiles
   end
 
-  private
-
   def validate_tftp
     return unless tftp?
     return unless host.operatingsystem
@@ -59,14 +57,14 @@ module Orchestration::TFTP
     end
   end
 
-  def generate_pxe_template
+  def generate_pxe_template(provision = build?)
     # this is the only place we generate a template not via a web request
     # therefore some workaround is required to "render" the template.
     @kernel = host.operatingsystem.kernel(host.arch)
     @initrd = host.operatingsystem.initrd(host.arch)
     # work around for ensuring that people can use @host as well, as tftp templates were usually confusing.
     @host = self.host
-    if build?
+    if provision
       pxe_render host.configTemplate({:kind => host.operatingsystem.template_kind})
     else
       if host.operatingsystem.template_kind == "PXEGrub"
