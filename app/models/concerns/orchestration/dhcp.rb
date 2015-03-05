@@ -50,8 +50,6 @@ module Orchestration::DHCP
     failure _("failed to detect boot server: %s") % e, e
   end
 
-  private
-
   # returns a hash of dhcp record settings
   def dhcp_attrs
     return unless dhcp?

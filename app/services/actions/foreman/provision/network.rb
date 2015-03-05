@@ -9,7 +9,7 @@ module Actions
             sequence do
               compute_create = plan_action(Compute::Create, host)
               host.managed_interfaces.each do |nic|
-                plan_action(Dhcp::Create, nic)
+                plan_action(Dhcp::Create, nic, compute_create.output[:nics][nic.id.to_s])
                 plan_action(Tftp::Create, nic)
                 plan_action(Tftp::CreateBootFiles, nic)
                 plan_action(Dns::CreateARecord, nic)
@@ -57,7 +57,7 @@ module Actions
             host = ::Host.find(input[:host_id])
             host.update_attributes!(:build => false)
             host.managed_interfaces.each do |nic|
-              nic.update_attributes(mac: nil, ip: nil)
+              nic.update_attributes!(mac: nil, ip: nil)
             end
           end
 

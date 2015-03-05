@@ -10,6 +10,7 @@ module Actions
           output_format do
             param :uuid, String
             param :response, Hash
+            param :nics
           end
 
           def plan(host)
@@ -25,6 +26,9 @@ module Actions
             host.setComputeDetails
             output[:uuid] = host.uuid
             host.save
+            output[:nics] = host.interfaces.reduce({}) do |hash, nic|
+              hash.update(nic.id.to_s => { ip: nic.ip, mac: nic.mac })
+            end
           end
         end
 

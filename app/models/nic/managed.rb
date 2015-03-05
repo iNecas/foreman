@@ -52,6 +52,18 @@ module Nic
       N_('Interface')
     end
 
+    #returns a hash of dhcp record attributes
+    def dhcp_attrs
+      raise ::Foreman::Exception.new(N_("DHCP not supported for this NIC")) unless dhcp?
+      {
+        :hostname => hostname,
+        :ip       => ip,
+        :mac      => mac,
+        :proxy    => subnet.dhcp_proxy,
+        :network  => network
+      }
+    end
+
     private
 
     def enc_attributes
@@ -81,18 +93,6 @@ module Nic
 
     def uniq_fields_with_hosts
       super + [:name]
-    end
-
-    # returns a hash of dhcp record attributes
-    def dhcp_attrs
-      raise ::Foreman::Exception.new(N_("DHCP not supported for this NIC")) unless dhcp?
-      {
-        :hostname => hostname,
-        :ip       => ip,
-        :mac      => mac,
-        :proxy    => subnet.dhcp_proxy,
-        :network  => network
-      }
     end
 
     def copy_hostname_from_host

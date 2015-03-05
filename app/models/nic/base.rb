@@ -185,6 +185,7 @@ module Nic
     end
 
     def require_ip_validation?
+      return false # the validation should happen in orchestration
       # if it's not managed there's nowhere to specify an IP anyway
       return false if !self.host.managed? || !self.managed? || !self.provision?
       # if the CR will provide an IP, then don't validate yet

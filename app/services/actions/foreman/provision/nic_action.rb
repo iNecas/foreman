@@ -4,8 +4,8 @@ module Actions
 
       class NicAction < EntryAction
 
-        def plan(nic)
-          plan_self(nic_id: nic.id)
+        def plan(nic, args = {})
+          plan_self(args.merge(nic_id: nic.id))
         end
 
         def nic
