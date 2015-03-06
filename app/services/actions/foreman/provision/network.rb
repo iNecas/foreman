@@ -30,8 +30,7 @@ module Actions
               host.managed_interfaces.each do |nic|
                 plan_action(Dhcp::Destroy, nic)
                 plan_action(Tftp::Destroy, nic)
-                plan_action(Dns::DestroyARecord, nic)
-                plan_action(Dns::DestroyPtrRecord, nic)
+                plan_action(Dns::Destroy, nic)
               end
               plan_action(Compute::Destroy, host)
               plan_self(host_id: host.id)

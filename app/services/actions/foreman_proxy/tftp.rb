@@ -37,6 +37,18 @@ module Actions
           proxy.fetch_boot_file(prefix: input[:prefix], path: input[:path])
         end
       end
+
+      class Destroy < Base
+        input_format do
+          param :variant, String
+          param :proxy_url, String
+          param :mac, String
+        end
+
+        def run
+          proxy.delete(input[:nic_attrs][:mac])
+        end
+      end
     end
   end
 end

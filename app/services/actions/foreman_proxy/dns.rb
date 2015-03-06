@@ -8,7 +8,7 @@ module Actions
       end
 
       module ARecord
-        class Create < Dns::Base
+        class Base < Dns::Base
           input_format do
             param :proxy_url, String
             param :hostname, String
@@ -19,10 +19,6 @@ module Actions
 
           output_format do
             param :response
-          end
-
-          def run
-            output[:response] = dns_a_record.create
           end
 
           def dns_a_record
@@ -42,15 +38,21 @@ module Actions
           end
         end
 
-        class Destroy < Dns::Base
+        class Create < Base
           def run
-            output[:response] = nic.del_dhcp.inspect
+            output[:response] = dns_a_record.create
+          end
+        end
+
+        class Destroy < Base
+          def run
+            output[:response] = dns_a_record.destroy
           end
         end
       end
 
       module PtrRecord
-        class Create < Dns::Base
+        class Base < Dns::Base
           input_format do
             param :proxy_url, String
             param :hostname, String
@@ -61,10 +63,6 @@ module Actions
             param :response
           end
 
-          def run
-            output[:response] = dns_ptr_record.create
-          end
-
           def dns_ptr_record
             Net::DNS::PTRRecord.new(hostname: input[:hostname],
                                     ip:       input[:nic_attrs][:ip],
@@ -72,9 +70,15 @@ module Actions
           end
         end
 
-        class Destroy < Dns::Base
+        class Create < Base
           def run
-            output[:response] = nic.del_dhcp.inspect
+            output[:response] = dns_ptr_record.create
+          end
+        end
+
+        class Destroy < Base
+          def run
+            output[:response] = dns_ptr_record.destroy
           end
         end
       end
