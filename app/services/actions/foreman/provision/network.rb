@@ -9,10 +9,10 @@ module Actions
             sequence do
               compute_create = plan_action(Compute::Create, host)
               host.managed_interfaces.each do |nic|
-                plan_action(Dhcp::Create, nic, compute_create.output[:nics][nic.id.to_s])
-                plan_action(Tftp::SetProvisioning, nic, compute_create.output[:nics][nic.id.to_s])
-                plan_action(Dns::CreateARecord, nic)
-                plan_action(Dns::CreatePtrRecord, nic)
+                nic_attrs = compute_create.output[:nics][nic.id.to_s]
+                plan_action(Dhcp::Create, nic, nic_attrs)
+                plan_action(Tftp::SetProvisioning, nic, nic_attrs)
+                plan_action(Dns::Create, nic, nic_attrs)
               end
               plan_action(Compute::PowerUp, host, uuid: compute_create.output[:uuid])
               plan_action(WaitForBuild, host)
