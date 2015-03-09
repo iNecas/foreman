@@ -19,6 +19,7 @@ module Actions
               host.managed_interfaces.each do |nic|
                 plan_action(Tftp::SetLocalBoot, nic, compute_create.output[:nics][nic.id.to_s])
               end
+              plan_action(WaitForSsh, host, compute_create.output[:nics])
             end
           end
         end
