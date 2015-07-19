@@ -5,7 +5,7 @@ module Orchestration::Compute
   extend ActiveSupport::Concern
 
   included do
-    attr_accessor :compute_attributes, :vm
+    attr_accessor :vm
     after_validation :validate_compute_provisioning, :queue_compute
     before_destroy :queue_compute_destroy
   end
@@ -36,8 +36,6 @@ module Orchestration::Compute
   def mac_available?
     mac.present? || compute_provides?(:mac)
   end
-
-  protected
 
   def queue_compute
     return unless compute? and errors.empty?
@@ -75,7 +73,7 @@ module Orchestration::Compute
     add_interfaces_to_compute_attrs
     self.vm = compute_resource.create_vm compute_attributes.merge(:name => Setting[:use_shortname_for_vms] ? shortname : name)
   rescue => e
-    failure _("Failed to create a compute %{compute_resource} instance %{name}: %{message}\n ") % { :compute_resource => compute_resource, :name => name, :message => e.message }, e.backtrace
+    failure(_("Failed to create a compute %{compute_resource} instance %{name}: %{message}\n ") % { :compute_resource => compute_resource, :name => name, :message => e.message }, e)
   end
 
   def setUserData
@@ -107,7 +105,7 @@ module Orchestration::Compute
       respond_to?(:initialize_puppetca,true) && initialize_puppetca && delCertificate && delAutosign
     end
   rescue => e
-    failure _("Failed to remove certificates for %{name}: %{e}") % { :name => name, :e => e }, e.backtrace
+    failure _("Failed to remove certificates for %{name}: %{e}") % { :name => name, :e => e }, e
   end
 
   def setComputeDetails
@@ -149,7 +147,7 @@ module Orchestration::Compute
       end
     end
   rescue => e
-    failure _("Failed to get IP for %{name}: %{e}") % { :name => name, :e => e }, e.backtrace
+    failure _("Failed to get IP for %{name}: %{e}") % { :name => name, :e => e }, e
   end
 
   def delComputeIP; end
@@ -158,38 +156,36 @@ module Orchestration::Compute
     logger.info "Removing Compute instance for #{name}"
     compute_resource.destroy_vm uuid
   rescue => e
-    failure _("Failed to destroy a compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e.backtrace
+    failure _("Failed to destroy a compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e
   end
 
   def setComputePowerUp
     logger.info "Powering up Compute instance for #{name}"
     compute_resource.start_vm uuid
   rescue => e
-    failure _("Failed to power up a compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e.backtrace
+    failure _("Failed to power up a compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e
   end
 
   def delComputePowerUp
     logger.info "Powering down Compute instance for #{name}"
     compute_resource.stop_vm uuid
   rescue => e
-    failure _("Failed to stop compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e.backtrace
+    failure _("Failed to stop compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e
   end
 
   def setComputeUpdate
     logger.info "Update Compute instance for #{name}"
     compute_resource.save_vm uuid, compute_attributes
   rescue => e
-    failure _("Failed to update a compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e.backtrace
+    failure _("Failed to update a compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e
   end
 
   def delComputeUpdate
     logger.info "Undo Update Compute instance for #{name}"
     compute_resource.save_vm uuid, old.compute_attributes
   rescue => e
-    failure _("Failed to undo update compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e.backtrace
+    failure _("Failed to undo update compute %{compute_resource} instance %{name}: %{e}") % { :compute_resource => compute_resource, :name => name, :e => e }, e
   end
-
-  private
 
   def compute_update_required?
     return false unless compute_resource.supports_update? and !compute_attributes.nil?

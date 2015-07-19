@@ -2,7 +2,7 @@ module Orchestration::SSHProvision
   extend ActiveSupport::Concern
 
   included do
-    after_validation :validate_ssh_provisioning, :queue_ssh_provision
+    after_validation :queue_ssh_provision
     attr_accessor :template_file, :client
   end
 
@@ -55,7 +55,7 @@ module Orchestration::SSHProvision
     self.client = Foreman::Provision::SSH.new provision_ip, image.username, { :template => template_file.path, :uuid => uuid }.merge(credentials)
 
   rescue => e
-    failure _("Failed to login via SSH to %{name}: %{e}") % { :name => name, :e => e }, e.backtrace
+    failure _("Failed to login via SSH to %{name}: %{e}") % { :name => name, :e => e }, e
   end
 
   def delSSHWaitForResponse; end
@@ -72,7 +72,7 @@ module Orchestration::SSHProvision
       respond_to?(:initialize_puppetca,true) && initialize_puppetca && delCertificate && delAutosign
     end
   rescue => e
-    failure _("Failed to remove certificates for %{name}: %{e}") % { :name => name, :e => e }, e.backtrace
+    failure _("Failed to remove certificates for %{name}: %{e}") % { :name => name, :e => e }, e
   end
 
   def setSSHProvision
@@ -86,7 +86,7 @@ module Orchestration::SSHProvision
     end
 
   rescue => e
-    failure _("Failed to launch script on %{name}: %{e}") % { :name => name, :e => e }, e.backtrace
+    failure _("Failed to launch script on %{name}: %{e}") % { :name => name, :e => e }, e
   end
 
   def delSSHProvision; end
@@ -103,7 +103,7 @@ module Orchestration::SSHProvision
       status = false
     end
     status = false if template.nil?
-    failure(_("No finish templates were found for this host, make sure you define at least one in your %s settings") % os ) unless status
+    failure(_("No finish templates were found for this host, make sure you define at least one in your %s settings") % os, e) unless status
   end
 
   def provision_ip

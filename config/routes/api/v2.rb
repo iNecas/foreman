@@ -273,6 +273,9 @@ Foreman::Application.routes.draw do
           put :boot, :on => :member
           put :power, :on => :member
           post :facts, :on => :collection
+          put :provision, :to => 'hosts#provision_create', :on => :member
+          delete :provision, :to => 'hosts#provision_destroy', :on => :member
+
           resources :audits, :only => :index
           resources :facts,  :only => :index, :controller => :fact_values
           resources :host_classes, :path => :puppetclass_ids, :only => [:index, :create, :destroy]

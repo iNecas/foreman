@@ -2,7 +2,7 @@ module Orchestration::DNS
   extend ActiveSupport::Concern
 
   included do
-    after_validation :dns_conflict_detected?, :queue_dns
+    after_validation :queue_dns
     before_destroy :queue_dns_destroy
   end
 
@@ -27,8 +27,6 @@ module Orchestration::DNS
     return unless reverse_dns? or @dns_ptr_record
     @dns_ptr_record ||= Net::DNS::PTRRecord.new reverse_dns_record_attrs
   end
-
-  protected
 
   def set_dns_a_record
     dns_a_record.create

@@ -2,7 +2,7 @@ module Orchestration::DHCP
   extend ActiveSupport::Concern
 
   included do
-    after_validation :dhcp_conflict_detected?, :queue_dhcp
+    after_validation :queue_dhcp
     before_destroy :queue_dhcp_destroy
     validate :ip_belongs_to_subnet?
   end
@@ -18,8 +18,6 @@ module Orchestration::DHCP
     return unless dhcp? or @dhcp_record
     @dhcp_record ||= (provision? && jumpstart?) ? Net::DHCP::SparcRecord.new(dhcp_attrs) : Net::DHCP::Record.new(dhcp_attrs)
   end
-
-  protected
 
   def set_dhcp
     dhcp_record.create
@@ -52,10 +50,8 @@ module Orchestration::DHCP
 
     failure _("Unable to determine the host's boot server. The DHCP smart proxy failed to provide this information and this subnet is not provided with TFTP services.")
   rescue => e
-    failure _("failed to detect boot server: %s") % e
+    failure _("failed to detect boot server: %s") % e, e
   end
-
-  private
 
   # returns a hash of dhcp record settings
   def dhcp_attrs

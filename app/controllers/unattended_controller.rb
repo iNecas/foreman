@@ -35,9 +35,23 @@ class UnattendedController < ApplicationController
 
   # this actions is called by each operatingsystem post/finish script - it notify us that the OS installation is done.
   def built
-    logger.info "#{controller_name}: #{@host.name} is Built!"
-    update_ip if Setting[:update_ip_from_built_request]
-    head(@host.built ? :created : :conflict)
+    if task = ForemanTasks::Task.for_resource(@host).running.first
+      wait_for_build_step = task.running_steps.find do |step|
+        step.action_class == ::Actions::Foreman::Provision::WaitForBuild
+      end
+      if wait_for_build_step
+        ForemanTasks.dynflow.world.event(wait_for_build_step.execution_plan_id,
+                                         wait_for_build_step.id, :built)
+      else
+        render :text => _("Failed to cancel provisioning: the provision task not running"), :status => :not_found
+        return
+      end
+      render :text => "OK"
+      return
+    else
+      render :text => _("Failed to cancel provisioning: the provision task not running"), :status => :not_found
+      return
+    end
   end
 
   def template

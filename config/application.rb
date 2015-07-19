@@ -159,6 +159,11 @@ module Foreman
         child.helper helpers
       end
     end
+
+    initializer "foreman.require_dynflow", :before => "foreman_tasks.initialize_dynflow" do |app|
+      ForemanTasks.dynflow.config.eager_load_paths.concat(%W[#{Rails.root}/app/services/actions])
+      ForemanTasks.dynflow.require!
+    end
   end
 
   def self.setup_console

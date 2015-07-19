@@ -167,6 +167,22 @@ Return value may either be one of the following:
         end
       end
 
+      api :PUT, "/hosts/:id/provision", N_("Provision the host")
+      param :id, :identifier_dottable, :required => true
+
+      def provision_create
+        @task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network::Create, @host)
+        render 'foreman_tasks/api/tasks/show'
+      end
+
+      api :DELETE, "/hosts/:id/provision", N_("Unprovision the host")
+      param :id, :identifier_dottable, :required => true
+
+      def provision_destroy
+        @task = ForemanTasks.async_task(::Actions::Foreman::Provision::Network::Destroy, @host)
+        render 'foreman_tasks/api/tasks/show'
+      end
+
       api :POST, "/hosts/facts", N_("Upload facts for a host, creating the host if required")
       param :name, String, :required => true, :desc => N_("hostname of the host")
       param :facts, Hash,      :required => true, :desc => N_("hash containing the facts for the host")
@@ -219,7 +235,7 @@ Return value may either be one of the following:
             :ipmi_boot
           when 'console'
             :console
-          when 'disassociate'
+          when 'disassociate', 'provision_create', 'provision_destroy'
             :edit
           else
             super

@@ -32,9 +32,10 @@ module Orchestration
   end
 
   # log and add to errors
-  def failure(msg, backtrace = nil, dest = :base)
-    logger.warn(backtrace ? msg + backtrace.join("\n") : msg)
+  def failure(msg, exception = nil, dest = :base)
+    logger.warn(exception ? msg + exception.backtrace.join("\n") : msg)
     errors.add dest, msg
+    raise(exception || msg)
     false
   end
 
@@ -68,7 +69,7 @@ module Orchestration
   # if any of them fail, it rollbacks all completed tasks
   # in order not to keep any left overs in our proxies.
   def process(queue_name)
-    return true if Rails.env == "test"
+    return true if (Rails.env == "test") || true
 
     # queue is empty - nothing to do.
     q = send(queue_name)

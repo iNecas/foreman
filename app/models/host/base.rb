@@ -1,5 +1,8 @@
 module Host
   class Base < ActiveRecord::Base
+
+    include ForemanTasks::Concerns::HostActionSubject
+
     include Foreman::STI
     include Authorizable
     include CounterCacheFix
@@ -47,6 +50,8 @@ module Host
 
     scope :no_location, lambda { where(:location_id => nil) }
     scope :no_organization, lambda { where(:organization_id => nil) }
+
+    serialize :compute_attributes, Hash
 
     # primary interface is mandatory because of delegated methods so we build it if it's missing
     # similar for provision interface
