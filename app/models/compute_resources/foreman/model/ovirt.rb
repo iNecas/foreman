@@ -6,6 +6,7 @@ module Foreman::Model
     validates :url, :format => { :with => URI.regexp }
     validates :user, :password, :presence => true
     before_create :update_public_key
+    before_update :clean_jsessionid
 
     alias_attribute :datacenter, :uuid
     attr_accessible :datacenter, :ovirt_quota, :public_key, :uuid
@@ -250,10 +251,17 @@ module Foreman::Model
           :ovirt_password   => password,
           :ovirt_url        => url,
           :ovirt_datacenter => uuid,
-          :ovirt_ca_cert_store => ca_cert_store(public_key)
+          :ovirt_ca_cert_store => ca_cert_store(public_key),
+          :ovirt_filtered_api => true,
+          :ovirt_persistent_auth => true,
+          :ovirt_jsessionid => jsessionid,
       )
       client.datacenters
       @client = client
+      if @client.respond_to?(:jsessionid) && self.jsessionid != @client.jsessionid
+        self.update_attribute(:jsessionid, @client.jsessionid)
+      end
+      @client
     rescue => e
       if e.message =~ /SSL_connect.*certificate verify failed/
         raise Foreman::FingerprintException.new(
@@ -333,6 +341,10 @@ module Foreman::Model
         vm.destroy_volume(:id => volume[:id], :blocking => api_version.to_f < 3.1) if volume[:_delete] == '1' && volume[:id].present?
         vm.add_volume({:bootable => 'false', :quota => ovirt_quota, :blocking => api_version.to_f < 3.1}.merge(volume)) if volume[:id].blank?
       end
+    end
+
+    def clean_jsessionid
+      self.jsessionid = nil if changes.key?("user")
     end
   end
 end
