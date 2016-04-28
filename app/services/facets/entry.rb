@@ -1,8 +1,8 @@
 module Facets
   class Entry
-    attr_reader :name, :model, :helper, :extension,
+    attr_reader :name, :helper, :extension,
       :api_single_view, :api_list_view,
-      :api_param_group_description, :api_param_group, :api_controller,
+      :api_param_group_description, :api_param_group,
       :tabs,
       :compatibility_properties
 
@@ -10,8 +10,16 @@ module Facets
       @compatibility_properties = []
       facet_name ||= to_name(facet_model)
 
-      @model = facet_model
+      @model_name = facet_model.name
       @name = facet_name
+    end
+
+    def model
+      @model_name.constantize
+    end
+
+    def api_controller
+      @api_controller_name.constantize
     end
 
     # Declare a helper module that will be added to host's view.
@@ -60,7 +68,7 @@ module Facets
     # for the whole "#{facet_name}_attributes"
     def api_docs(param_group, controller, description = nil)
       @api_param_group = param_group
-      @api_controller = controller
+      @api_controller_name = controller.name
       @api_param_group_description = description
     end
 
