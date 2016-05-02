@@ -2,6 +2,10 @@ require 'rubygems'
 require 'fileutils'
 require 'spork'
 
+require 'simplecov'
+SimpleCov.start 'rails'
+SimpleCov.command_name ENV['SIMPLE_COV_NAME']
+
 Spork.prefork do
   # Loading more in this block will cause your tests to run faster. However,
   # if you change any configuration or code from libraries loaded here, you'll
