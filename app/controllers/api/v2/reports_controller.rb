@@ -37,8 +37,8 @@ module Api
       param_group :report, :as => :create
 
       def create
-        @report = resource_class.import(params[:report], detected_proxy.try(:id))
-        process_response @report.errors.empty?
+        task = ForemanTasks.async_task Actions::Foreman::Report::Import, params, resource_class, detected_proxy.try(:id)
+        process_success _('Report import has been enqueued, please see the task %s for more details') % task.id
       rescue ::Foreman::Exception => e
         render_message(e.to_s, :status => :unprocessable_entity)
       end
