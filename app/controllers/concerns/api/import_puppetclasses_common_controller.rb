@@ -40,16 +40,12 @@ module Api::ImportPuppetclassesCommonController
     end
 
     # RUN PuppetClassImporter
-    if params.key?(:background) && !['false', false].include?(params[:background])
-      task = ForemanTasks.async_task(::Actions::Foreman::PuppetClass::Import, :changed => @changed)
+    background = params.key?(:background) && !['false', false].include?(params[:background])
+    begin
+      task = ForemanTasks.trigger_task(background, ::Actions::Foreman::PuppetClass::Import, :changed => @changed)
       process_success task
-    else
-      begin
-        task = ForemanTasks.sync_task(::Actions::Foreman::PuppetClass::Import, :changed => @changed)
-        process_success task
-      rescue ForemanTasks::TaskError => e
-        render :json => { :message => _("Failed to update the environments and Puppet classes from the on-disk puppet installation: %s") % e.to_s }, :status => :internal_server_error
-      end
+    rescue ForemanTasks::TaskError => e
+      render :json => { :message => _("Failed to update the environments and Puppet classes from the on-disk puppet installation: %s") % e.to_s }, :status => :internal_server_error
     end
   end
 
