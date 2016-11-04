@@ -43,7 +43,11 @@ module Api::ImportPuppetclassesCommonController
     background = params.key?(:background) && !['false', false].include?(params[:background])
     begin
       task = ForemanTasks.trigger_task(background, ::Actions::Foreman::PuppetClass::Import, :changed => @changed)
-      process_success task
+      if background
+        process_success task
+      else
+        render("api/v1/import_puppetclasses/#{rabl_template}", :layout => "api/layouts/import_puppetclasses_layout")
+      end
     rescue ForemanTasks::TaskError => e
       render :json => { :message => _("Failed to update the environments and Puppet classes from the on-disk puppet installation: %s") % e.to_s }, :status => :internal_server_error
     end
