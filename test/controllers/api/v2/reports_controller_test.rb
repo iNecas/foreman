@@ -2,6 +2,7 @@ require 'test_helper'
 require 'controllers/shared/report_host_permissions_test'
 
 class Api::V2::ReportsControllerTest < ActionController::TestCase
+  include ForemanTasks::TestHelpers::WithInThreadExecutor
   include ::ReportHostPermissionsTest
 
   setup do
