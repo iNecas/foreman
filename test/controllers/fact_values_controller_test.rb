@@ -27,6 +27,16 @@ class FactValuesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  def test_index_with_sort
+    FactoryGirl.create(:fact_value)
+    @request.env['HTTP_REFERER'] = fact_values_path
+    get :index, {order: 'origin ASC'}, set_session_user
+    assert_response :success
+    assert_not_nil :fact_values
+    get :index, {order: 'wrong ASC'}, set_session_user
+    assert_response :redirect
+  end
+
   describe 'CSV Export' do
     test 'csv export works' do
       get :index, {format: :csv}, set_session_user
