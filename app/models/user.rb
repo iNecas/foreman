@@ -164,7 +164,8 @@ class User < ActiveRecord::Base
   end
 
   def to_label
-    (firstname.present? || lastname.present?) ? "#{firstname} #{lastname}" : login
+    name = [firstname, lastname].join(' ')
+    name.present? ? name : login
   end
   alias_method :name, :to_label
 
@@ -178,7 +179,8 @@ class User < ActiveRecord::Base
 
   # The text item to see in a select dropdown menu
   def select_title
-    to_label + " (#{login})"
+    name = [firstname, lastname].join(' ')
+    name.present? ? "#{name} (#{login})" : login
   end
 
   def self.anonymous_admin
