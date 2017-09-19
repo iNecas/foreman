@@ -8,7 +8,7 @@ gem 'rest-client', '>= 1.8.0', '< 3', :require => 'rest_client'
 gem 'audited', '~> 4.3'
 gem 'will_paginate', '~> 3.0'
 gem 'ancestry', '~> 2.0'
-gem 'scoped_search', '~> 4.0'
+gem 'scoped_search', '>= 4.1.2', '< 5'
 gem 'ldap_fluff', '>= 0.4.7', '< 1.0'
 gem 'apipie-rails', '>= 0.3.4', '< 0.6.0'
 gem 'rabl', '~> 0.11'
@@ -40,6 +40,7 @@ gem 'mail', '~> 2.6'
 gem 'nokogiri', '< 1.7' if RUBY_VERSION.start_with? '2.0.'
 gem 'sshkey', '~> 1.9'
 gem 'ruby2ruby', '2.3.2'
+gem 'public_suffix', '< 3.0.0' if RUBY_VERSION.start_with? '2.0.'
 
 Dir["#{File.dirname(FOREMAN_GEMFILE)}/bundler.d/*.rb"].each do |bundle|
   self.instance_eval(Bundler.read_file(bundle))
