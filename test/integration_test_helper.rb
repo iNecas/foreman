@@ -100,6 +100,79 @@ class ActionDispatch::IntegrationTest
     end
   end
 
+  def login_user(username, password)
+    logout_admin
+    visit "/"
+    fill_in "login_login", :with => username
+    fill_in "login_password", :with => password
+    click_button "Log In"
+    assert_current_path root_path
+  end
+
+  def set_empty_default_context(user)
+    user.update_attribute :default_organization_id, nil
+    user.update_attribute :default_location_id, nil
+  end
+
+  def set_default_context(user, org, loc)
+    user.update_attribute :default_organization_id, org.try(:id)
+    user.update_attribute :default_location_id, loc.try(:id)
+  end
+
+  def assert_available_location(location)
+    within('ul.loc-submenu') do
+      assert page.has_link?(location)
+    end
+  end
+
+  def refute_available_location(location)
+    within('ul.loc-submenu') do
+      assert page.has_no_link?(location)
+    end
+  end
+
+  def assert_available_organization(organization)
+    within('ul.org-submenu') do
+      assert page.has_link?(organization)
+    end
+  end
+
+  def refute_available_organization(organization)
+    within('ul.org-submenu') do
+      assert page.has_no_link?(organization)
+    end
+  end
+
+  def assert_current_organization(organization)
+    within('li.org-switcher li.org-menu > a') do
+      assert page.has_content?(organization)
+    end
+  end
+
+  def assert_current_location(location)
+    within('li.org-switcher li.loc-menu > a') do
+      assert page.has_content?(location)
+    end
+  end
+
+  def select_organization(organization)
+    within('ul.org-submenu') do
+      click_link organization
+    end
+  end
+
+  def select_location(location)
+    within('ul.loc-submenu') do
+      click_link location
+    end
+  end
+
+  def assert_warning(message)
+    within('div.flash.warning') do
+      assert page.has_content?(message)
+    end
+  end
+
   setup :login_admin
 
   teardown do
