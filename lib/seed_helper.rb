@@ -1,3 +1,5 @@
+require Rails.root + 'db/seeds.d/02-permissions_list.rb'
+
 # methods which are used in seeds and migrations
 class SeedHelper
   class << self
@@ -47,7 +49,11 @@ class SeedHelper
     end
 
     def create_role(role_name, permission_names, builtin, check_audit = true)
-      return if Role.find_by_name(role_name)
+      if existing = Role.find_by_name(role_name)
+        update_role_permissions(existing, :permissions => permission_names)
+        return
+      end
+
       return if check_audit && audit_modified?(Role, role_name) && (builtin == 0)
       role = Role.new(:name => role_name, :builtin => builtin)
       if role.respond_to? :origin
@@ -57,6 +63,23 @@ class SeedHelper
       role.save!
       permissions = Permission.where(:name => permission_names)
       create_filters(role, permissions)
+    end
+
+    def update_role_permissions(role, options)
+      desired_permissions = options[:permissions].map(&:to_s)
+      existing_permissions = role.permissions.where(:name => PermissionsList.permissions.map(&:last)).pluck(:name)
+
+      role.ignore_locking do
+        missing_permissions = desired_permissions - existing_permissions
+        if missing_permissions.present?
+          role.add_permissions(missing_permissions, :save! => true)
+        end
+
+        extra_permissions = existing_permissions - desired_permissions
+        if extra_permissions.present?
+          role.remove_permissions!(extra_permissions)
+        end
+      end
     end
   end
 end
