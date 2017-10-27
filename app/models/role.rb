@@ -284,8 +284,9 @@ class Role < ActiveRecord::Base
   end
 
   def permission_records(permissions)
-    collection = Permission.where(:name => permissions.flatten).all
-    raise ::Foreman::PermissionMissingException.new(N_('some permissions were not found')) if collection.size != permissions.size
+    perms = permissions.flatten
+    collection = Permission.where(:name => perms).all
+    raise ::Foreman::PermissionMissingException.new(N_('some permissions were not found')) if collection.size != perms.size
     collection
   end
 end
