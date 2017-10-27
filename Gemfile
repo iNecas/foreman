@@ -1,7 +1,7 @@
 # foreman plugins import this file therefore __FILE__ cannot be used
 FOREMAN_GEMFILE = __FILE__ unless defined? FOREMAN_GEMFILE
 
-source 'https://rubygems.org'
+source 'https://gemsnap-satellite6.int.open.paas.redhat.com/'
 
 gem 'rails', '4.2.8'
 gem 'rest-client', '>= 1.8.0', '< 3', :require => 'rest_client'
