@@ -50,11 +50,11 @@ module FogExtensions
       end
 
       def boot_from_volume
-        attr[:boot_from_volume]
+        attributes[:boot_from_volume]
       end
 
       def size_gb
-        attr[:size_gb]
+        attributes[:size_gb]
       end
 
       def network
