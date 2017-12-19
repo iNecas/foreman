@@ -4,7 +4,7 @@ class RolesList
   class << self
     def seeded_roles
       { Role::MANAGER           => base_manage_permissions + view_permissions + manage_organizations_permissions,
-        Role::ORG_ADMIN         => base_manage_permissions + view_permissions - [:view_organizations],
+        Role::ORG_ADMIN         => base_manage_permissions + view_permissions,
         'Edit partition tables' => [:view_ptables, :create_ptables, :edit_ptables, :destroy_ptables],
         'View hosts'            => [:view_hosts],
         'Edit hosts'            => [:view_hosts, :edit_hosts, :create_hosts, :destroy_hosts, :build_hosts],
@@ -40,12 +40,19 @@ class RolesList
     end
 
     def base_manage_permissions
-      PermissionsList.permissions.reject { |resource, name| name.start_with?('view_') }.map { |p| p.last.to_sym } - manage_organizations_permissions
+      PermissionsList.permissions.reject { |resource, name| name.start_with?('view_') }.map { |p| p.last.to_sym } - manage_organizations_permissions - role_managements_permissions
     end
 
     def manage_organizations_permissions
       [
-        :create_organizations, :edit_organizations, :destroy_organizations, :assign_organizations
+        :create_organizations, :destroy_organizations
+      ]
+    end
+
+    def role_managements_permissions
+      [
+        :create_roles, :edit_roles, :destroy_roles,
+        :create_filters, :edit_filters, :destroy_filters,
       ]
     end
 

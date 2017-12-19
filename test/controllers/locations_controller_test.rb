@@ -53,15 +53,15 @@ class LocationsControllerTest < ActionController::TestCase
     end
   end
 
-  test "should clear the session if the user deleted their current location" do
+  test "should clear the session and switch to any if the user deleted their current location" do
     as_admin do
       location = Location.create!(:name => "random-location")
       Location.current = location
       delete :destroy, {:id => location.id}, set_session_user.merge(:location_id => location.id)
     end
 
-    assert_equal Location.current, nil
-    assert_equal session[:location_id], nil
+    assert_nil Location.current
+    assert_equal '', session[:location_id]
   end
 
   test "should save location on session expiry" do
@@ -175,11 +175,11 @@ class LocationsControllerTest < ActionController::TestCase
     end
   end
 
-  test "should clear out Location.current" do
+  test "should clear out Location.current and set current location to any in session" do
     @request.env['HTTP_REFERER'] = root_url
     get :clear, {}, set_session_user
-    assert_equal Location.current, nil
-    assert_equal session[:location_id], nil
+    assert_nil Location.current
+    assert_equal '', session[:location_id]
     assert_redirected_to root_url
   end
 
