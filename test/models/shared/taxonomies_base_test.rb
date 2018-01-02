@@ -49,6 +49,16 @@ module TaxonomiesBaseTest
       assert taxonomy.valid?
     end
 
+    test 'it should allow assigning invalid opposite_taxonomy' do
+      taxonomy = FactoryGirl.build(:"#{taxonomy_name}")
+      domain = FactoryGirl.build(:domain)
+      # this makes taxonomy invalid since it has a host in a domain that isn't assigned to it:
+      FactoryGirl.create(:host, :domain => domain, :"#{taxonomy_name}" => taxonomy)
+      refute taxonomy.valid?
+      opposite = FactoryGirl.build(:"#{opposite_taxonomy}", :"#{taxonomy_name}_ids" => [taxonomy.id])
+      assert opposite.valid?
+    end
+
     test 'it should return array of used ids by hosts' do
       taxonomy = taxonomies(:"#{taxonomy_name}1")
       subnet = FactoryGirl.create(:subnet_ipv4,
