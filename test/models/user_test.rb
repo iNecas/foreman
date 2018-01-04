@@ -784,6 +784,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "return location and child ids for non-admin user" do
+    users(:one).roles << Role.find_by_name('Manager')
     as_user :one do
       # User 'one' contains location1 already
       in_taxonomy :location1 do
@@ -794,6 +795,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "return organization and child ids for non-admin user" do
+    users(:one).roles << Role.find_by_name('Manager')
     as_user :one do
       # User 'one' contains organization1 already
       in_taxonomy :organization1 do

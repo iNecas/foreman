@@ -173,6 +173,16 @@ class ActionDispatch::IntegrationTest
     end
   end
 
+  def assert_form_tab(label)
+    within(%(label[for="#{label.downcase}"])) do
+      assert page.has_content?(label)
+    end
+  end
+
+  def notification_messages
+    Hash[JSON.parse(page.find(:css, "div#notifications")['data-flash'])]
+  end
+
   setup :login_admin
 
   teardown do

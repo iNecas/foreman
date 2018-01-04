@@ -25,6 +25,10 @@ class Taxonomy < ActiveRecord::Base
 
   validate :check_for_orphans, :unless => Proc.new {|t| t.new_record?}
 
+  # the condition for parent_id != 0 is required because of our tests, should validate macros fill in attribute with values and it set 0 to this one
+  # which would lead to an error when we ask for parent object
+  validate :parent_id_does_not_escalate, :if => Proc.new { |t| t.ancestry_changed? && t.parent_id != 0 && t.parent.present? }
+
   validates :name, :presence => true, :uniqueness => {:scope => [:ancestry, :type], :case_sensitive => false}
 
   before_validation :sanitize_ignored_types
@@ -237,5 +241,12 @@ class Taxonomy < ActiveRecord::Base
   def assign_taxonomy_to_user
     return if User.current.nil? || User.current.admin
     TaxableTaxonomy.create(:taxonomy_id => self.id, :taxable_id => User.current.id, :taxable_type => 'User')
+  end
+
+  def parent_id_does_not_escalate
+    unless User.current.can?("edit_#{self.class.to_s.underscore.pluralize}", self.parent)
+      errors.add :parent_id, _("Missing a permission to edit parent %s") % self.class.to_s
+      return false
+    end
   end
 end

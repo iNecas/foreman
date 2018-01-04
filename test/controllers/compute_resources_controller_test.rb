@@ -41,7 +41,10 @@ class ComputeResourcesControllerTest < ActionController::TestCase
   end
 
   test "should create compute resource" do
-    setup_user "create"
+    role = FactoryGirl.build(:role)
+    role.add_permissions!([:view_locations, :assign_locations, :edit_locations, :view_organizations, :assign_organizations, :edit_organizations])
+    setup_user "create", 'compute_resources'
+    User.current.roles << role
     assert_difference('ComputeResource.unscoped.count', +1) do
       attrs = {:name => "test", :provider => "Libvirt", :url => "qemu://host/system"}
       post :create, {:compute_resource => attrs}, set_session_user
