@@ -74,7 +74,7 @@ function ovirt_templateSelected(item){
       url: url,
       data:'template_id=' + template,
       success: function(result){
-        $('[id$=_memory]').val(result.memory);
+        $('[id$=_memory]').val(result.memory).trigger('change');
         $('[id$=_cores]').val(result.cores);
         $('#network_interfaces').children('.fields').remove();
         $.each(result.interfaces, function() {add_network_interface(this);});
