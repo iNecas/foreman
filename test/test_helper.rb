@@ -8,6 +8,7 @@ require 'factory_girl_rails'
 require 'controllers/shared/basic_rest_response_test'
 require 'facet_test_helper'
 require 'active_support_test_case_helper'
+require 'fact_importer_test_helper'
 
 # load notification blueprint seeds
 require File.join(Rails.root,'db','seeds.d','17-notification_blueprints.rb')
